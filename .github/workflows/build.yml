@@ -1,0 +1,56 @@
+name: Release
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+permissions:
+  contents: write
+env:
+  # The build tool and SDK interfaces come from the plugin template and are not part of this repo.
+  TEMPLATE_REPO: https://github.com/jxlarrea/kiosk-satellite-plugin-hello-world
+  TEMPLATE_COMMIT: ca8fa90a7945e538d024788e3c7abec3ea7d0a59
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "$GITHUB_REF_TYPE" != "tag" ]; then
+            echo "Run this workflow on a release tag, not a branch." >&2
+            exit 1
+          fi
+          gh release view "$GITHUB_REF_NAME"
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+      - name: Install Android platform and build tools
+        # Compiling against API 24 makes the build fail if the plugin calls anything newer.
+        run: sdkmanager 'platforms;android-24' 'build-tools;35.0.0'
+      - name: Fetch the build tool and SDK interfaces
+        run: |
+          git init -q "$RUNNER_TEMP/template"
+          git -C "$RUNNER_TEMP/template" fetch -q --depth 1 "$TEMPLATE_REPO" "$TEMPLATE_COMMIT"
+          git -C "$RUNNER_TEMP/template" checkout -q FETCH_HEAD
+          mkdir .build-kit
+          cp -r "$RUNNER_TEMP/template/tools" "$RUNNER_TEMP/template/sdk" .build-kit/
+      - name: Test
+        run: |
+          platform="$ANDROID_HOME/platforms/android-24/android.jar"
+          javac --release 8 -cp "$platform" -d "$RUNNER_TEMP/test" $(find .build-kit/sdk/src src tests -name '*.java')
+          java -ea -cp "$RUNNER_TEMP/test:$platform" nz.primus.kiosk.cabal.CabalSkinTest
+      - name: Build
+        run: python3 .build-kit/tools/build.py . --android-platform 24 --version "${GITHUB_REF_NAME#v}"
+      - name: Attach plugin assets to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload "$GITHUB_REF_NAME" \
+            dist/*.zip \
+            dist/*.zip.sha256 \
+            dist/kiosk-satellite-plugin.json --clobber

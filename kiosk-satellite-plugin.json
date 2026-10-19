@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "primusnz-cabal-skin",
+  "name": "CABAL",
+  "version": "1.0.0",
+  "apiVersion": 1,
+  "minAndroidSdk": 24,
+  "entryClass": "nz.primus.kiosk.cabal.CabalPlugin",
+  "description": "CABAL, the Brotherhood of Nod's command-and-control AI, now runs your smart home.",
+  "author": "PrimusNZ",
+  "license": "MIT",
+  "capabilities": [
+    "overlay",
+    "host.read",
+    "voice.skin",
+    "voice.text"
+  ],
+  "voiceSkinThumbnail": "voice-skin.webp"
+}
