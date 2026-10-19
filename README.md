@@ -3,8 +3,8 @@
 <p align="center">
   <img src="assets/voice-skin.webp" alt="CABAL voice skin" width="640" />
 </p>
-
-CABAL, the Brotherhood of Nod's command-and-control AI, now runs your smart home. A [Kiosk Satellite](https://github.com/jxlarrea/kiosk-satellite) plugin that adds the **CABAL** skin to Voice Satellite.
+CABAL, Formally the Brotherhood of Nod's command-and-control AI, he now runs your smart home.
+A [Kiosk Satellite](https://github.com/jxlarrea/kiosk-satellite) plugin that adds the **CABAL** skin to Voice Satellite.
 
 ## Installation
 

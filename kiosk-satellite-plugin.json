@@ -6,7 +6,7 @@
   "apiVersion": 1,
   "minAndroidSdk": 24,
   "entryClass": "nz.primus.kiosk.cabal.CabalPlugin",
-  "description": "CABAL, the Brotherhood of Nod's command-and-control AI, now runs your smart home.",
+  "description": "CABAL, a Voice Satellite skin. Formally the Brotherhood of Nod's command-and-control AI, he now runs your smart home",
   "author": "PrimusNZ",
   "license": "MIT",
   "capabilities": [
