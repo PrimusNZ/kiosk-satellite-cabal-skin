@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "primusnz-cabal-skin",
   "name": "CABAL",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "apiVersion": 1,
   "minAndroidSdk": 24,
   "entryClass": "nz.primus.kiosk.cabal.CabalPlugin",
@@ -15,5 +15,6 @@
     "voice.skin",
     "voice.text"
   ],
-  "voiceSkinThumbnail": "voice-skin.webp"
+  "voiceSkinThumbnail": "voice-skin.webp",
+  "icon": "cabal_icon.png"
 }
