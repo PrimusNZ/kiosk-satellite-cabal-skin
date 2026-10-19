@@ -11,19 +11,22 @@ import java.util.Random;
 
 /**
  * The thinking indicator: a row of random 1s and 0s that streams from right to left while the assistant works on an
- * answer. New digits enter on the right and leave on the left, both ends fade out, and a digit now and then flips.
- * It only animates while it is showing.
+ * answer. New digits enter on the right and leave on the left, both ends fade out, and digits at random places flip
+ * between 1 and 0 as it streams. It only animates while it is showing.
  */
 final class BinaryStream extends View {
     private static final int CYAN = 0xB7DFFF;
     /** The stream's speed in digit widths a second, and the share of its width that fades at each end. */
     private static final float SPEED = 7.5f, FADE_EDGE = 0.3f;
+    /** How many times a second digits flip, and the most digits that flip together, each at its own random place. */
+    private static final float FLIPS_PER_SECOND = 24f;
+    private static final int MAX_FLIPPED = 4;
 
     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Random random = new Random();
     private char[] digits = new char[0];
     private float[] brightness = new float[0];
-    private float cell, offset;
+    private float cell, offset, flips;
     private int maxWidth = Integer.MAX_VALUE;
     private long last;
 
@@ -78,7 +81,14 @@ final class BinaryStream extends View {
                 digits[count - 1] = bit();
                 brightness[count - 1] = shade();
             }
-            if (random.nextInt(5) == 0) digits[random.nextInt(count)] = bit();
+            flips += FLIPS_PER_SECOND * dt;
+            while (flips >= 1f) {
+                flips -= 1f;
+                for (int n = 1 + random.nextInt(MAX_FLIPPED); n > 0; n--) {
+                    int at = random.nextInt(count);
+                    digits[at] = digits[at] == '0' ? '1' : '0';
+                }
+            }
             float baseline = -paint.getFontMetrics().ascent;
             float edge = width * FADE_EDGE;
             for (int i = 0; i < count; i++) {
@@ -98,6 +108,7 @@ final class BinaryStream extends View {
         super.onVisibilityChanged(changed, visibility);
         if (visibility == VISIBLE) {
             last = 0;
+            flips = 0f;
             digits = new char[0];
         }
     }
