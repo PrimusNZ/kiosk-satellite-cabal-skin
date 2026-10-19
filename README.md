@@ -6,16 +6,29 @@
 
 CABAL, the Brotherhood of Nod's command-and-control AI, now runs your smart home. A [Kiosk Satellite](https://github.com/jxlarrea/kiosk-satellite) plugin that adds the **CABAL** skin to Voice Satellite.
 
-## Install
+## Installation
 
-Requires Android 7 (API 24) and Kiosk Satellite 2026.10.30 as a minimum.
+### Community Plugins (Recommended)
 
-1. Download the latest `primusnz-cabal-skin-<version>.zip` from the **Releases** page.
-2. Open **Plugin Manager > Developer Tools > Install from ZIP** on the kiosk or in Remote Admin.
-3. Select the ZIP, confirm you trust the code and enable the plugin.
-4. Pick **CABAL** in **Voice Satellite > Appearance > Skin**.
+My Plugin is listed in [Community Plugins](https://kiosksatellite.com/plugins/). Use the button below to open it in your Kiosk Satellite and install it.
 
-## Build from source
+[![Install in Kiosk Satellite](https://kiosksatellite.com/img/badges/plugin-add.svg)](https://kiosksatellite.com/redirect/plugin/?repository=PrimusNZ/kiosk-satellite-cabal-skin)
+
+Or search for `My Plugin` in **Settings > Plugin Manager > Browse plugins** in Kiosk Satellite.
+
+### Manual
+
+1. Open **Settings > Plugin Manager** in Kiosk Satellite and turn on **Enable Plugins**.
+2. Choose **Add plugin**, paste `https://github.com/PrimusNZ/kiosk-satellite-cabal-skin` and choose **Preview**.
+3. Review the plugin and choose **Trust and install**.
+
+## Configuration
+
+1. Open **Settings > Plugin Manager** and ensure the CABAL plugin is enabled.
+2. Pick **CABAL** in **Voice Satellite > Appearance > Skin** page.
+3. Configure Voice Satellite as you would any other built-in skin.
+
+## Building from source
 
 You need Python 3, JDK 17 or newer and an Android SDK with build-tools and at least one platform. This repo holds only the plugin's own source, so the build tool and SDK interfaces come from the [plugin template](https://github.com/jxlarrea/kiosk-satellite-plugin-hello-world). Keep them in an untracked `.build-kit/` folder, which `.gitignore` already excludes.
 
@@ -31,7 +44,7 @@ export ANDROID_HOME=/path/to/android-sdk   # an absolute path, not ~
 python3 .build-kit/tools/build.py .
 ```
 
-The ZIP and its `.sha256` are written to `dist/`. Install the ZIP as described above.
+The ZIP and its `.sha256` are written to `dist/`.
 
 - `--android-platform <version>` picks an installed platform. The default is the highest installed.
 - `--version 1.2.3` overrides the version in `kiosk-satellite-plugin.json`.
