@@ -147,6 +147,8 @@ final class CabalSkin {
         } else if ("ks.voice.state".equals(event)) {
             mode = modeOf(String.valueOf(payload.get("state")));
             stateHeard = true;
+            SkinView current = view;
+            if (current != null) current.post(current::refresh);
             return;
         } else if ("ks.voice.level".equals(event)) {
             Object value = payload.get("level");
@@ -302,6 +304,7 @@ final class CabalSkin {
         private final CabalArt art;
         private final TextView said;
         private final TextView answered;
+        private final BinaryStream stream;
         private final Tail tail;
         private final LinearLayout card;
         private KsTheme ksTheme;
@@ -312,8 +315,8 @@ final class CabalSkin {
             this.docked = docked;
             said = new TextView(context);
             answered = new TextView(context);
+            stream = new BinaryStream(context);
             tail = new Tail(context);
-            tail.addView(answered, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
             int screenWidth = context.getResources().getDisplayMetrics().widthPixels;
             if (docked) {
                 art = new CabalArt(context, CabalSkin.this, true);
@@ -326,7 +329,13 @@ final class CabalSkin {
                 said.setMaxLines(1);
                 said.setEllipsize(TextUtils.TruncateAt.END);
                 words.addView(said, new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+                // The tail scrolls its one child, and the answer fades inside it: they must not share a view.
+                LinearLayout block = new LinearLayout(context);
+                block.setOrientation(LinearLayout.VERTICAL);
+                block.addView(answered, new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+                tail.addView(block, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
                 words.addView(tail, new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+                words.addView(stream, new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
                 LinearLayout.LayoutParams wordsParams = new LinearLayout.LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f);
                 wordsParams.leftMargin = theme.px(16);
                 card.addView(words, wordsParams);
@@ -343,10 +352,12 @@ final class CabalSkin {
                 LinearLayout words = new LinearLayout(context);
                 words.setOrientation(LinearLayout.VERTICAL);
                 words.addView(said, new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-                tail.removeAllViews();
                 LinearLayout.LayoutParams answerLine = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
                 answerLine.topMargin = theme.px(8);
                 words.addView(answered, answerLine);
+                LinearLayout.LayoutParams streamLine = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+                streamLine.gravity = Gravity.CENTER_HORIZONTAL;
+                words.addView(stream, streamLine);
                 tail.addView(words, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
                 LinearLayout column = new LinearLayout(context);
                 column.setOrientation(LinearLayout.VERTICAL);
@@ -363,6 +374,8 @@ final class CabalSkin {
             said.setTag(false);
             answered.setVisibility(GONE);
             answered.setTag(false);
+            stream.setVisibility(GONE);
+            stream.setTag(false);
             if (docked) {
                 tail.setVisibility(GONE);
                 tail.setTag(false);
@@ -395,6 +408,7 @@ final class CabalSkin {
                 size(said, 18 * scale, 400);
                 size(answered, 26 * scale, 500);
             }
+            stream.style(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, (docked ? 14 : 20) * scale, getResources().getDisplayMetrics()), docked ? Integer.MAX_VALUE : ksTheme.px(360));
             said.setTextColor(0xFF8FA9C2);
             answered.setTextColor(0xFFE6F2FF);
             art.setPlate(docked);
@@ -414,6 +428,8 @@ final class CabalSkin {
             String line = answer.isEmpty() ? tool : answer;
             if (!line.isEmpty()) answered.setText(line);
             fade(answered, !line.isEmpty());
+            // Thinking: something was said, no answer or tool line is in yet.
+            fade(stream, mode == CabalArt.THINKING && line.isEmpty());
             // Docked, the card shrinks to its words. Full screen the bottom third stays put.
             if (docked) fade(tail, !line.isEmpty());
         }
